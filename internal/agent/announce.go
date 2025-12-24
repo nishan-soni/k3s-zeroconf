@@ -18,6 +18,8 @@ func AnnounceAgent(name string, port int) {
 	}
 	defer server.Shutdown()
 
+	fmt.Printf("%s is open for connection.\n", name)
+
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	<-sig
