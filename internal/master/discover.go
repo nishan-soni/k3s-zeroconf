@@ -7,6 +7,7 @@ import (
 	"os"
 	"text/tabwriter"
 	"time"
+	"net/http"
 
 	"github.com/grandcat/zeroconf"
 	"github.com/nishan-soni/k3_zeroconf/internal/common"
@@ -45,7 +46,7 @@ func ListNodes(timeout time.Duration) {
 	go func() {
 		err := resolver.Browse(ctx, common.ServiceType, common.LocalDomain, services)
 		if err != nil {
-			log.Fatalln("Zeroconf browsing failed:", err)
+			log.Fatalln("Zeroconf browsing failed:", err.Error())
 		}
 	}()
 
@@ -79,7 +80,6 @@ func printNodesTable(discoveredNodes []*zeroconf.ServiceEntry) {
 
 func AddNode(node *DiscoveredNode) {
 
-	// Run this as a go routine
 	// Sends an http request to the node to the cluster
 
 	// Maybe it should check if it was actually added? Idk if it should be done here though
@@ -90,4 +90,13 @@ func AddNode(node *DiscoveredNode) {
 	// 	Other connection failures
 	//		Add a context timeout thing to check after 30s if the node was added or not
 	//			Can check using the k3 cli command most likley
+
+	endpoint := node.address
+	_, err := http.Get(endpoint)
+
+	if err != nil {
+		log.Fatalln("Failed to add node:", err.Error())
+	}
+
+
 }
