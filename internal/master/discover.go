@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 	"text/tabwriter"
 	"time"
-	"net/http"
 
 	"github.com/grandcat/zeroconf"
 	"github.com/nishan-soni/k3_zeroconf/internal/common"
@@ -64,7 +65,7 @@ func printNodesTable(discoveredNodes []*zeroconf.ServiceEntry) {
 
 	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 
-	fmt.Fprintln(writer, "NAME\tIP\tPORT")
+	fmt.Fprintln(writer, "NAME\tIP\tPAIRING PORT")
 
 	for _, node := range discoveredNodes {
 		ip := "Unknown"
@@ -72,7 +73,15 @@ func printNodesTable(discoveredNodes []*zeroconf.ServiceEntry) {
 			ip = node.AddrIPv4[0].String()
 		}
 
-		fmt.Fprintf(writer, "%s\t%s\t%d\n", node.Instance, ip, node.Port)
+		pairingPort := "Unknown"
+		if len(node.Text) > 0 {
+			_, after, found := strings.Cut(node.Text[0], "=")
+			if found {
+				pairingPort = after
+			}
+		}
+
+		fmt.Fprintf(writer, "%s\t%s\t%s\n", node.Instance, ip, pairingPort)
 	}
 
 	writer.Flush()
@@ -97,6 +106,5 @@ func AddNode(node *DiscoveredNode) {
 	if err != nil {
 		log.Fatalln("Failed to add node:", err.Error())
 	}
-
 
 }

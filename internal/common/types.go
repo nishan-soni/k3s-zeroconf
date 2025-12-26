@@ -1,7 +1,6 @@
 package common
 
-
-type AddRequest struct {
-	masterIP  string
-	joinToken string
+type PairingInfo struct {
+	MasterIP  string `json:"master_ip"`
+	JoinToken string `json:"join_token"`
 }
