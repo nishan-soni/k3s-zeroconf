@@ -1,27 +1,26 @@
 package agent
 
 import (
+	"os"
 	"os/exec"
 	"syscall"
-	"os"
 )
 
-func handoffToK3s(flags []string){
+// Hands off the process to k3s which then attaches the agent to the cluster.
+func handoffToK3s(flags []string) error {
 	k3sPath, err := exec.LookPath("k3s")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	args := append([]string{"agent"}, flags...)
-
 	env := os.Environ()
-	
-	err = syscall.Exec(k3sPath, args, env)
 
+	err = syscall.Exec(k3sPath, args, env)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
+	return nil
 
-	 
 }

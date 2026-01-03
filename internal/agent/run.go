@@ -1,16 +1,24 @@
 package agent
 
-func Run(deviceName string, mDNSPort int, k3sflags []string) {
+// Starts the pairing process for the agent by registering the device to mDNS
+// and starting an http server for masters to add it to the cluster.
+func Run(deviceName string, mDNSPort int, k3sflags []string) error {
+	pairingInfoCh, pairingPort, err := startPairingServer()
+	if err != nil {
+		return err
+	}
 
-	pairingInfoCh, pairingPort := startPairingServer()
-	stopmDNSServer := registermDNS(deviceName, mDNSPort, pairingPort)
+	stopmDNSServer, err := registermDNS(deviceName, mDNSPort, pairingPort)
+	defer stopmDNSServer()
+	if err != nil {
+		return err
+	}
 
 	<-pairingInfoCh
 
-	stopmDNSServer()
-
-	handoffToK3s(k3sflags)
-
-
-
+	err = handoffToK3s(k3sflags)
+	if err != nil {
+		return err
+	}
+	return nil
 }

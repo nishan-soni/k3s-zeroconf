@@ -29,7 +29,7 @@ func makeAddNodeHandler(pairingInfoCh chan<- common.PairingInfo) http.HandlerFun
 	}
 }
 
-func startPairingServer() (<-chan common.PairingInfo, int) {
+func startPairingServer() (<-chan common.PairingInfo, int, error) {
 	pairingInfoCh := make(chan common.PairingInfo)
 
 	mux := http.NewServeMux()
@@ -37,7 +37,7 @@ func startPairingServer() (<-chan common.PairingInfo, int) {
 
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
-		log.Fatalln("Failed to initalize tcp listener", err.Error())
+		return nil, 0, err
 	}
 
 	port := listener.Addr().(*net.TCPAddr).Port
@@ -50,5 +50,5 @@ func startPairingServer() (<-chan common.PairingInfo, int) {
 		}
 	}()
 
-	return pairingInfoCh, port
+	return pairingInfoCh, port, nil
 }

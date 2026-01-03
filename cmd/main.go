@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
 	"github.com/nishan-soni/k3_zeroconf/internal/agent"
+	"github.com/nishan-soni/k3_zeroconf/internal/common"
 	"github.com/nishan-soni/k3_zeroconf/internal/master"
 	"github.com/spf13/cobra"
 )
@@ -20,18 +20,18 @@ func main() {
 		panic(err)
 	}
 
-	mDNSServerPort := 5543
-
 	rootCmd := &cobra.Command{
 		Use:   "k3z",
-		Short: "tdo",
+		Short: "todo",
 	}
 
 	agentCmd := &cobra.Command{
 		Use:   "agent",
 		Short: "todo",
 		Run: func(cmd *cobra.Command, args []string) {
-			agent.Run(agentName, mDNSServerPort, []string{})
+			if err := agent.Run(agentName, common.MDNSServerPort, []string{}); err != nil {
+				fmt.Printf("Agent failed: %s\n", err)
+			}
 		},
 	}
 
@@ -40,7 +40,7 @@ func main() {
 		Short: "todo",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := master.ListNodes(time.Second); err != nil {
-				log.Fatalln("Failed to list nodes: %w", err.Error())
+				fmt.Printf("Failed to list nodes: %s\n", err.Error())
 			}
 		},
 	}
@@ -56,7 +56,6 @@ func main() {
 	}
 
 	rootCmd.AddCommand(agentCmd, getNodesCmd, connectNodeCmd)
-
 	rootCmd.Execute()
 
 }
