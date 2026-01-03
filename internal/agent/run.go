@@ -1,13 +1,15 @@
 package agent
 
-func Run(hostName string, mDNSPort int) {
+func Run(deviceName string, mDNSPort int, k3sflags []string) {
 
 	pairingInfoCh, pairingPort := startPairingServer()
-	stopmDNSServer := registermDNS(hostName, mDNSPort, pairingPort)
+	stopmDNSServer := registermDNS(deviceName, mDNSPort, pairingPort)
 
 	<-pairingInfoCh
 
 	stopmDNSServer()
+
+	handoffToK3s(k3sflags)
 
 
 

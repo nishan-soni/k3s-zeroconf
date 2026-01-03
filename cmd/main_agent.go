@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	agent.Run("example-55435-40234", 5543)
+	agent.Run("example-55435-40234", 5543, []string{"--server"})
 }
