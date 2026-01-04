@@ -137,7 +137,7 @@ func AddNode(nodeName string, serverAddress string, serverTokenPath string) erro
 		return err
 	}
 	info := common.PairingInfo{
-		MasterAddress: fmt.Sprintf("https://%s:%d", serverAddress, common.K3sSeverPort),
+		MasterAddress: fmt.Sprintf("https://%s:%d", serverAddress, common.K3sServerPort),
 		JoinToken:     serverToken,
 	}
 

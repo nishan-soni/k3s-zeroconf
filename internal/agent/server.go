@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -37,7 +38,7 @@ func startPairingServer() (<-chan common.PairingInfo, int, error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /addnode", makeAddNodeHandler(pairingInfoCh))
 
-	listener, err := net.Listen("tcp", ":45873")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", common.PairingServerPort))
 	if err != nil {
 		return nil, 0, err
 	}

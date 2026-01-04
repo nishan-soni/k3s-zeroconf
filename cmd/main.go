@@ -16,6 +16,7 @@ func main() {
 	// CLI args parsing to check if we're running as a node or a master
 
 	var agentAlias string
+	var agentAddress string
 
 	rootCmd := &cobra.Command{
 		Use:   "k3z",
@@ -35,7 +36,7 @@ func main() {
 				}
 				agentName = hostname
 			}
-			if err := agent.Run(agentName, common.MDNSServerPort, []string{}); err != nil {
+			if err := agent.Run(agentName, common.MDNSServerPort, []string{}, agentAddress); err != nil {
 				fmt.Printf("Agent failed: %s\n", err)
 			}
 		},
@@ -68,6 +69,7 @@ func main() {
 	}
 
 	agentCmd.Flags().StringVar(&agentAlias, "alias", "", "Name of the agent (defaults to device name)")
+	agentCmd.Flags().StringVar(&agentAddress, "address", "", "Optional ip address of the agent. (Defaults to local)")
 
 	rootCmd.AddCommand(agentCmd, getNodesCmd, connectNodeCmd)
 	rootCmd.Execute()
