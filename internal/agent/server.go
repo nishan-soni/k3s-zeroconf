@@ -29,6 +29,8 @@ func makeAddNodeHandler(pairingInfoCh chan<- common.PairingInfo) http.HandlerFun
 	}
 }
 
+// Starts an HTTPS server allowing for master nodes to send their join token and ip address
+// so the agent can join the cluster.
 func startPairingServer() (<-chan common.PairingInfo, int, error) {
 	pairingInfoCh := make(chan common.PairingInfo)
 

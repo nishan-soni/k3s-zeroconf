@@ -54,28 +54,26 @@ func ListNodes(timeout time.Duration) error {
 }
 
 // Parses an mDNS service entry into a discoveredNode.
-func parseServiceEntry(serviceEntry *zeroconf.ServiceEntry) (discoveredNode, error) {
+func parseServiceEntry(serviceEntry *zeroconf.ServiceEntry) (node discoveredNode, err error) {
 	if len(serviceEntry.AddrIPv4) == 0 {
-		return discoveredNode{}, fmt.Errorf("node does not have an address.")
+		err = fmt.Errorf("node does not have an address.")
 	}
 
-	pairingPort := ""
+	node.address = serviceEntry.AddrIPv4[0].String()
+	node.id = serviceEntry.Instance
+
 	if len(serviceEntry.Text) > 0 {
 		_, after, found := strings.Cut(serviceEntry.Text[0], "=")
 		if found {
-			pairingPort = after
+			node.pairingPort = after
 		} else {
-			return discoveredNode{}, fmt.Errorf("node does not have a port.")
+			err = fmt.Errorf("node does not have a port.")
 		}
 	} else {
-		return discoveredNode{}, fmt.Errorf("node does not have any text.")
+		err = fmt.Errorf("node does not have any text.")
 	}
 
-	return discoveredNode{
-		address:     serviceEntry.AddrIPv4[0].String(),
-		id:          serviceEntry.Instance,
-		pairingPort: pairingPort,
-	}, nil
+	return
 }
 
 func printNodesTable(discoveredNodes []discoveredNode) {
