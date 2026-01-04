@@ -17,6 +17,7 @@ func main() {
 
 	var agentAlias string
 	var agentAddress string
+	var masterAddress string
 
 	rootCmd := &cobra.Command{
 		Use:   "k3z",
@@ -56,9 +57,13 @@ func main() {
 		Use:   "connect",
 		Short: "todo",
 		Run: func(cmd *cobra.Command, args []string) {
-			masterIP, err := common.GetOutboundIP()
-			if err != nil {
-				fmt.Printf("Failed to locate master's server IP.")
+			masterIP := masterAddress
+			if masterIP == "" {
+				address, err := common.GetOutboundIP()
+				if err != nil {
+					fmt.Printf("Failed to locate master's server IP.")
+				}
+				masterIP = address
 			}
 			for _, nodeId := range args {
 				if err := master.AddNode(nodeId, masterIP, common.ServerTokenPath); err != nil {
@@ -70,6 +75,7 @@ func main() {
 
 	agentCmd.Flags().StringVar(&agentAlias, "alias", "", "Name of the agent (defaults to device name)")
 	agentCmd.Flags().StringVar(&agentAddress, "address", "", "Optional ip address of the agent. (Defaults to local)")
+	connectNodeCmd.Flags().StringVar(&masterAddress, "address", "", "Optional ip address of the master server. (Defaults to local)")
 
 	rootCmd.AddCommand(agentCmd, getNodesCmd, connectNodeCmd)
 	rootCmd.Execute()
