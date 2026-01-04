@@ -37,7 +37,7 @@ func startPairingServer() (<-chan common.PairingInfo, int, error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /addnode", makeAddNodeHandler(pairingInfoCh))
 
-	listener, err := net.Listen("tcp", ":0")
+	listener, err := net.Listen("tcp", ":45873")
 	if err != nil {
 		return nil, 0, err
 	}
