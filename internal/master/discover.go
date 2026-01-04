@@ -121,7 +121,10 @@ func getServerToken(tokenPath string) (string, error) {
 	defer tokenFile.Close()
 
 	scanner := bufio.NewScanner(tokenFile)
-	return scanner.Text(), nil
+	if scanner.Scan() {
+		return scanner.Text(), nil
+	}
+	return "", fmt.Errorf("server token is empty.")
 }
 
 // Adds the node to the k3s cluster by sending an http request to the agent.
@@ -131,10 +134,13 @@ func AddNode(nodeName string, serverAddress string, serverTokenPath string) erro
 		return err
 	}
 
-	serverToken, _ := getServerToken(serverTokenPath)
+	serverToken, err := getServerToken(serverTokenPath)
+	if err != nil {
+		return err
+	}
 	info := common.PairingInfo{
-		MasterIP:  serverAddress,
-		JoinToken: serverToken,
+		MasterAddress: fmt.Sprintf("https://%s:%d", serverAddress, common.K3sSeverPort),
+		JoinToken:     serverToken,
 	}
 
 	payload, err := json.Marshal(info)
@@ -148,6 +154,8 @@ func AddNode(nodeName string, serverAddress string, serverTokenPath string) erro
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("%s connected to %s!\n", nodeName, serverAddress)
 
 	return nil
 }

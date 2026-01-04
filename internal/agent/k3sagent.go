@@ -13,7 +13,7 @@ func handoffToK3s(flags []string) error {
 		return err
 	}
 
-	args := append([]string{"agent"}, flags...)
+	args := append([]string{"k3s", "agent"}, flags...)
 	env := os.Environ()
 
 	err = syscall.Exec(k3sPath, args, env)
