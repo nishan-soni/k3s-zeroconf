@@ -146,7 +146,7 @@ func AddNode(nodeName string, serverAddress string, serverTokenPath string) erro
 		return err
 	}
 
-	endpoint := "http://" + node.address + ":" + node.pairingPort + "/addnode"
+	endpoint := "http://" + node.address + ":" + node.pairingPort + common.JoinEndpoint
 	_, err = http.Post(endpoint, "application/json", bytes.NewBuffer(payload))
 
 	if err != nil {

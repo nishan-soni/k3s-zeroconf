@@ -3,7 +3,7 @@ package agent
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
 	"net/http"
 
@@ -24,6 +24,7 @@ func makeAddNodeHandler(pairingInfoCh chan<- common.PairingInfo) http.HandlerFun
 		if err != nil {
 			http.Error(writer, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
 		} else {
+			slog.Info("Received join request.", "request", joinRequest)
 			writer.WriteHeader(http.StatusOK)
 			pairingInfoCh <- joinRequest
 		}
@@ -36,7 +37,7 @@ func startPairingServer() (<-chan common.PairingInfo, int, error) {
 	pairingInfoCh := make(chan common.PairingInfo)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /addnode", makeAddNodeHandler(pairingInfoCh))
+	mux.HandleFunc("POST " + common.JoinEndpoint, makeAddNodeHandler(pairingInfoCh))
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", common.PairingServerPort))
 	if err != nil {
@@ -45,10 +46,11 @@ func startPairingServer() (<-chan common.PairingInfo, int, error) {
 
 	port := listener.Addr().(*net.TCPAddr).Port
 
+	slog.Info("Starting pairing server to listen for join requests from the k3s server.", "address", listener.Addr()) 
 	go func() {
 		if err := http.Serve(listener, mux); err != nil {
 			if err != http.ErrServerClosed {
-				log.Printf("HTTP Server error: %v\n", err)
+				slog.Error("HTTP server error.", slog.Any("err", err))
 			}
 		}
 	}()

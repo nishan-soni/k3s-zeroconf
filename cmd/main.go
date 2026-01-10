@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"log/slog"
 
 	"github.com/nishan-soni/k3_zeroconf/internal/agent"
 	"github.com/nishan-soni/k3_zeroconf/internal/common"
@@ -13,11 +14,15 @@ import (
 
 func main() {
 
-	// CLI args parsing to check if we're running as a node or a master
-
 	var agentAlias string
-	var agentAddress string
-	var masterAddress string
+	var advertiseAddress string
+
+	opts := &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}
+
+	logger := slog.New(slog.NewTextHandler(os.Stderr, opts))
+	slog.SetDefault(logger)
 
 	rootCmd := &cobra.Command{
 		Use:   "k3z",
@@ -25,7 +30,7 @@ func main() {
 	}
 
 	agentCmd := &cobra.Command{
-		Use:   "agent",
+		Use:   "agent [flags] -- [k3s flags]",
 		Short: "todo",
 		Run: func(cmd *cobra.Command, args []string) {
 			agentName := agentAlias
@@ -37,14 +42,14 @@ func main() {
 				}
 				agentName = hostname
 			}
-			if err := agent.Run(agentName, common.MDNSServerPort, []string{}, agentAddress); err != nil {
-				fmt.Printf("Agent failed: %s\n", err)
+			if err := agent.Run(agentName, common.MDNSServerPort, args, advertiseAddress); err != nil {
+				slog.Error("Agent failed", slog.Any("err", err))
 			}
 		},
 	}
 
-	getNodesCmd := &cobra.Command{
-		Use:   "list",
+	discoverCmd := &cobra.Command{
+		Use:   "discover",
 		Short: "todo",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := master.ListNodes(time.Second); err != nil {
@@ -57,7 +62,7 @@ func main() {
 		Use:   "connect",
 		Short: "todo",
 		Run: func(cmd *cobra.Command, args []string) {
-			masterIP := masterAddress
+			masterIP := advertiseAddress
 			if masterIP == "" {
 				address, err := common.GetOutboundIP()
 				if err != nil {
@@ -74,10 +79,10 @@ func main() {
 	}
 
 	agentCmd.Flags().StringVar(&agentAlias, "alias", "", "Name of the agent (defaults to device name)")
-	agentCmd.Flags().StringVar(&agentAddress, "address", "", "Optional ip address of the agent. (Defaults to local)")
-	connectNodeCmd.Flags().StringVar(&masterAddress, "address", "", "Optional ip address of the master server. (Defaults to local)")
+	agentCmd.Flags().StringVar(&advertiseAddress, "advertise-address", "", "Optional advertise ip address for the agent's server. (Defaults to local)")
+	connectNodeCmd.Flags().StringVar(&advertiseAddress, "advertise-address", "", "Optional ip address of the master server. (Defaults to local)")
 
-	rootCmd.AddCommand(agentCmd, getNodesCmd, connectNodeCmd)
+	rootCmd.AddCommand(agentCmd, discoverCmd, connectNodeCmd)
 	rootCmd.Execute()
 
 }
