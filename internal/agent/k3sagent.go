@@ -80,7 +80,10 @@ func handoffToK3s(flags []string) error {
 		return err
 	}
 
-	openPorts(common.K3sAllowIps, common.K3sAllowPorts)
+	err = openPorts(common.K3sAllowIps, common.K3sAllowPorts)
+	if err != nil {
+		slog.Error("Failed to open ports", slog.Any("error", err))
+	}
 
 	args := append([]string{"k3s", "agent"}, flags...)
 	env := os.Environ()
