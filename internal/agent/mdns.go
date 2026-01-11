@@ -2,10 +2,10 @@ package agent
 
 import (
 	"fmt"
+	"log/slog"
 	"net"
 	"os"
 	"strconv"
-	"log/slog"
 
 	"github.com/grandcat/zeroconf"
 	"github.com/nishan-soni/k3_zeroconf/internal/common"
@@ -13,8 +13,8 @@ import (
 
 func registermDNS(name string, port int, pairingPort int, address string) (func(), error) {
 	var (
-		server *zeroconf.Server
-		err    error
+		server            *zeroconf.Server
+		err               error
 		advertisedAddress string
 	)
 
