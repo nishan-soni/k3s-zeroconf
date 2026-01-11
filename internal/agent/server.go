@@ -37,7 +37,7 @@ func startPairingServer() (<-chan common.PairingInfo, int, error) {
 	pairingInfoCh := make(chan common.PairingInfo)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST " + common.JoinEndpoint, makeAddNodeHandler(pairingInfoCh))
+	mux.HandleFunc("POST /"+common.JoinEndpoint, makeAddNodeHandler(pairingInfoCh))
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", common.PairingServerPort))
 	if err != nil {
@@ -46,7 +46,7 @@ func startPairingServer() (<-chan common.PairingInfo, int, error) {
 
 	port := listener.Addr().(*net.TCPAddr).Port
 
-	slog.Info("Starting pairing server to listen for join requests from the k3s server.", "address", listener.Addr()) 
+	slog.Info("Starting pairing server to listen for join requests from the k3s server.", "address", listener.Addr())
 	go func() {
 		if err := http.Serve(listener, mux); err != nil {
 			if err != http.ErrServerClosed {

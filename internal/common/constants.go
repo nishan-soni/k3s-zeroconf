@@ -6,7 +6,7 @@ const ServerTokenPath string = "/var/lib/rancher/k3s/server/agent-token"
 const MDNSServerPort int = 55435
 const K3sServerPort int = 6443
 const PairingServerPort int = 45873
-const JoinEndpoint string = "/join"
+const JoinEndpoint string = "join"
 
 var K3sAllowPorts []string = []string{"6443/tcp", "10250/tcp"}
 

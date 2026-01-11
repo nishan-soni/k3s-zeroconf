@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -41,13 +40,13 @@ Ex. k3z agent --connect-ip=1 -- --node-ip=2`,
 			if agentName == "" {
 				hostname, err := os.Hostname()
 				if err != nil {
-					fmt.Println("Failed to identify device name and no alias was provided.")
+					slog.Error("Failed to identify device name and no alias was provided.")
 					return
 				}
 				agentName = hostname
 			}
 			if err := agent.Run(agentName, common.MDNSServerPort, args, advertiseAddress); err != nil {
-				slog.Error("Agent failed", slog.Any("err", err))
+				slog.Error("k3z agent failed", slog.Any("err", err))
 			}
 		},
 	}
@@ -59,7 +58,7 @@ Ex. k3z agent --connect-ip=1 -- --node-ip=2`,
 This helps the server operator see which nodes are available to be added to the k3s cluster.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := master.ListNodes(time.Second); err != nil {
-				fmt.Printf("Failed to list nodes: %s\n", err.Error())
+				slog.Error("Failed to discover nodes", slog.Any("error", err))
 			}
 		},
 	}
@@ -75,13 +74,13 @@ Optionally, you can provide the server's IP address if it differs from the local
 			if masterIP == "" {
 				address, err := common.GetOutboundIP()
 				if err != nil {
-					fmt.Printf("Failed to locate server IP.")
+					slog.Error("Failed to get k3s server IP.")
 				}
 				masterIP = address
 			}
 			for _, nodeId := range args {
 				if err := master.AddNode(nodeId, masterIP, common.ServerTokenPath); err != nil {
-					fmt.Printf("Failed to add %s: %s\n", nodeId, err.Error())
+					slog.Error("Failed to add node", "node", nodeId, slog.Any("error", err))
 				}
 			}
 		},

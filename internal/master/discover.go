@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -44,7 +45,7 @@ func ListNodes(timeout time.Duration) error {
 	for entry := range services {
 		discoveredNode, err := parseServiceEntry(entry)
 		if err != nil {
-			fmt.Printf("Failed to parse service %s\n", entry.Instance)
+			slog.Error("Failed to parse service.", "service", entry.Instance, slog.Any("error", err))
 		}
 		results = append(results, discoveredNode)
 	}
@@ -78,7 +79,7 @@ func parseServiceEntry(serviceEntry *zeroconf.ServiceEntry) (node discoveredNode
 
 func printNodesTable(discoveredNodes []discoveredNode) {
 	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-	fmt.Fprintln(writer, "NAME\tIP\tSERVER PORT")
+	fmt.Fprintln(writer, "NAME\tCONNECT IP\tCONNECT PORT")
 
 	for _, node := range discoveredNodes {
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", node.id, node.address, node.pairingPort)
@@ -146,7 +147,7 @@ func AddNode(nodeName string, serverAddress string, serverTokenPath string) erro
 		return err
 	}
 
-	endpoint := "http://" + node.address + ":" + node.pairingPort + common.JoinEndpoint
+	endpoint := fmt.Sprintf("http://%s:%s/%s", node.address, node.pairingPort, common.JoinEndpoint)
 	_, err = http.Post(endpoint, "application/json", bytes.NewBuffer(payload))
 
 	if err != nil {
