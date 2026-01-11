@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/nishan-soni/k3_zeroconf/internal/agent"
-	"github.com/nishan-soni/k3_zeroconf/internal/common"
-	"github.com/nishan-soni/k3_zeroconf/internal/master"
+	"github.com/nishan-soni/k3s-zeroconf/internal/agent"
+	"github.com/nishan-soni/k3s-zeroconf/internal/common"
+	"github.com/nishan-soni/k3s-zeroconf/internal/master"
 	"github.com/spf13/cobra"
 )
 

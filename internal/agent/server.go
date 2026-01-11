@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/nishan-soni/k3_zeroconf/internal/common"
+	"github.com/nishan-soni/k3s-zeroconf/internal/common"
 )
 
 func makeAddNodeHandler(pairingInfoCh chan<- common.PairingInfo) http.HandlerFunc {

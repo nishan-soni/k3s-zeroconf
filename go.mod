@@ -1,4 +1,4 @@
-module github.com/nishan-soni/k3_zeroconf
+module github.com/nishan-soni/k3s-zeroconf
 
 go 1.25.5
 

@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/grandcat/zeroconf"
-	"github.com/nishan-soni/k3_zeroconf/internal/common"
+	"github.com/nishan-soni/k3s-zeroconf/internal/common"
 )
 
 type discoveredNode struct {
