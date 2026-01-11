@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -24,7 +25,7 @@ type discoveredNode struct {
 }
 
 // List all nodes announced in mDNS.
-func ListNodes(timeout time.Duration) error {
+func ListNodes(writer io.Writer, timeout time.Duration) error {
 	resolver, err := zeroconf.NewResolver(nil)
 	if err != nil {
 		return err
@@ -39,8 +40,6 @@ func ListNodes(timeout time.Duration) error {
 		return err
 	}
 
-	fmt.Printf("Discovering Nodes (%s)\n", timeout)
-
 	var results []discoveredNode
 	for entry := range services {
 		discoveredNode, err := parseServiceEntry(entry)
@@ -50,7 +49,7 @@ func ListNodes(timeout time.Duration) error {
 		results = append(results, discoveredNode)
 	}
 
-	printNodesTable(results)
+	printNodesTable(writer, results)
 	return nil
 }
 
@@ -77,14 +76,14 @@ func parseServiceEntry(serviceEntry *zeroconf.ServiceEntry) (node discoveredNode
 	return
 }
 
-func printNodesTable(discoveredNodes []discoveredNode) {
-	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+func printNodesTable(writer io.Writer, discoveredNodes []discoveredNode) {
+	tabwriter := tabwriter.NewWriter(writer, 0, 0, 3, ' ', 0)
 	fmt.Fprintln(writer, "NAME\tCONNECT IP\tCONNECT PORT")
 
 	for _, node := range discoveredNodes {
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", node.id, node.address, node.pairingPort)
 	}
-	writer.Flush()
+	tabwriter.Flush()
 }
 
 // Check if a node exists in mDNS.
@@ -153,8 +152,6 @@ func AddNode(nodeName string, serverAddress string, serverTokenPath string) erro
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("Added %s to the cluster!\n", nodeName)
 
 	return nil
 }
