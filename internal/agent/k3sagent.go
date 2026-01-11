@@ -85,7 +85,7 @@ func handoffToK3s(flags []string) error {
 	args := append([]string{"k3s", "agent"}, flags...)
 	env := os.Environ()
 
-	slog.Info("Handing off to k3s.", "command", args, "env", env)
+	slog.Info("Handing off to k3s.", "command", args)
 	err = syscall.Exec(k3sPath, args, env)
 	if err != nil {
 		return err

@@ -1,5 +1,7 @@
 package agent
 
+import "log/slog"
+
 // Starts the pairing process for the agent by registering the device to mDNS
 // and starting an http server for masters to add it to the cluster.
 func Run(deviceName string, mDNSPort int, extraK3sflags []string, agentAddress string) error {
@@ -13,6 +15,7 @@ func Run(deviceName string, mDNSPort int, extraK3sflags []string, agentAddress s
 		return err
 	}
 	defer stopmDNSServer()
+	slog.Info("Waiting for requests.")
 
 	pairingInfo := <-pairingInfoCh
 

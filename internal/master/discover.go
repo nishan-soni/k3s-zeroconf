@@ -153,7 +153,7 @@ func AddNode(nodeName string, serverAddress string, serverTokenPath string) erro
 		return err
 	}
 
-	fmt.Printf("%s connected to %s!\n", nodeName, serverAddress)
+	fmt.Printf("Added %s to the cluster!\n", nodeName)
 
 	return nil
 }
