@@ -4,13 +4,13 @@ import "log/slog"
 
 // Starts the pairing process for the agent by registering the device to mDNS
 // and starting an http server for masters to add it to the cluster.
-func Run(deviceName string, mDNSPort int, extraK3sflags []string, agentAddress string) error {
+func Run(deviceName string, mDNSServerPort int, extraK3sflags []string, agentAddress string) error {
 	pairingInfoCh, pairingPort, err := startPairingServer()
 	if err != nil {
 		return err
 	}
 
-	stopmDNSServer, err := registermDNS(deviceName, mDNSPort, pairingPort, agentAddress)
+	stopmDNSServer, err := registermDNS(deviceName, mDNSServerPort, pairingPort, agentAddress)
 	if err != nil {
 		return err
 	}
@@ -21,9 +21,10 @@ func Run(deviceName string, mDNSPort int, extraK3sflags []string, agentAddress s
 
 	startupFlags := []string{"--server", pairingInfo.MasterAddress, "--token", pairingInfo.JoinToken}
 	flags := append(startupFlags, extraK3sflags...)
-	err = handoffToK3s(flags)
-	if err != nil {
+
+	if err = handoffToK3s(flags); err != nil {
 		return err
 	}
+
 	return nil
 }

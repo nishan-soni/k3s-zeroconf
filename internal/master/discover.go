@@ -24,6 +24,10 @@ type discoveredNode struct {
 	pairingPort string
 }
 
+func (n discoveredNode) Address() string     { return n.address }
+func (n discoveredNode) ID() string          { return n.id }
+func (n discoveredNode) PairingPort() string { return n.pairingPort }
+
 // List all nodes announced in mDNS.
 func ListNodes(writer io.Writer, timeout time.Duration) error {
 	resolver, err := zeroconf.NewResolver(nil)
@@ -87,7 +91,7 @@ func printNodesTable(writer io.Writer, discoveredNodes []discoveredNode) {
 }
 
 // Check if a node exists in mDNS.
-func lookupNode(nodeName string) (discoveredNode, error) {
+func LookupNode(nodeName string) (discoveredNode, error) {
 	resolver, _ := zeroconf.NewResolver(nil)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
@@ -127,7 +131,7 @@ func getServerToken(tokenPath string) (string, error) {
 
 // Adds the node to the k3s cluster by sending an http request to the agent.
 func AddNode(nodeName string, serverAddress string, serverTokenPath string) error {
-	node, err := lookupNode(nodeName)
+	node, err := LookupNode(nodeName)
 	if err != nil {
 		return err
 	}
