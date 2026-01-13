@@ -47,7 +47,8 @@ Ex. k3z agent --connect-ip=1 -- --node-ip=2`,
 				}
 				agentName = hostname
 			}
-			if err := agent.Run(agentName, common.MDNSServerPort, args, advertiseAddress); err != nil {
+			a := agent.NewAgent()
+			if err := a.Run(agentName, common.MDNSServerPort, args, advertiseAddress); err != nil {
 				slog.Error("k3z agent failed", slog.Any("err", err))
 			}
 		},
